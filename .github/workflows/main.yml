@@ -3,22 +3,29 @@ name: Sync to Hugging Face hub
 on:
   push:
     branches: [main]
-
-  # Allow manual trigger from the Actions tab
   workflow_dispatch:
 
 jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
     steps:
-      # Check out the repository
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Ensure the full history is fetched
-          lfs: true       # Enable support for large files if using Git LFS
+          fetch-depth: 0  # Fetch the full history for accurate merging
+          lfs: true       # Enable Git LFS for large files if used
       
-      # Push the repository to the Hugging Face Hub
-      - name: Push to hub
+      - name: Pull latest changes from remote
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}  # Use the secret token for authentication
-        run: git push https://ashaythamankar:$HF_TOKEN@huggingface.co/spaces/ashaythamankar/Search_Engine_LLM main
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config user.name "ashay-thamankar"
+          git config user.email "ashaythamankar@gmail.com"
+          git pull https://ashaythamankar:$HF_TOKEN@huggingface.co/spaces/ashaythamankar/Search_Engine_LLM main --rebase
+
+      - name: Push to Hugging Face Hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config user.name "ashay-thamankar"
+          git config user.email "ashaythamankar@gmail.com"
+          git push https://ashaythamankar:$HF_TOKEN@huggingface.co/spaces/ashaythamankar/Search_Engine_LLM main
